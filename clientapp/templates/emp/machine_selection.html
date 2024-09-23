@@ -1,0 +1,115 @@
+{% extends 'emp/base.html' %}
+{% block title %}Choose an Option - {{ block.super }}{% endblock %}
+
+{% block content %}
+<style>
+    .option-box {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .machine-button {
+        background-color: #8B0000; /* Dark red */
+        color: white;
+        font-size: 16px; /* Smaller button text */
+        font-weight: bold;
+        padding: 10px; /* Smaller buttons */
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .machine-button:hover {
+        transform: scale(1.05);
+        background-color: #600000; /* Darker red on hover */
+    }
+
+    .machine-button:focus {
+        outline: none;
+    }
+
+    .machine-button-container {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr); /* 6 buttons per row */
+        gap: 15px; /* Spacing between buttons */
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .back-button {
+        background-color: gray;
+        color: white;
+        font-size: 18px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .back-button:hover {
+        background-color: #505050;
+    }
+
+</style>
+
+<div class="p-3 p-md-5 m-md-3 text-center bg-body-tertiary border rounded-4">
+    <div class="col-md-10 p-lg-5 mx-auto my-5 option-box">
+        <h1 class="display-4 mb-5">Choose an Option</h1>
+        <form method="post" action="{% url 'emp:select_machine' %}">
+            {% csrf_token %}
+            <div class="machine-button-container">
+                <!-- Generate 24 buttons M1 to M24 -->
+                {% for i in range %}
+                <button type="submit" class="machine-button" name="machine" value="{{ i }}">
+                    M{{ i }}
+                </button>
+                {% endfor %}
+            </div>
+            <!-- Back button -->
+            <div>
+                <button type="button" class="back-button" onclick="window.location.href='{% url 'emp:employee_selection' %}'">Back</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+{% if request.user.employee.is_working %}
+<div class="modal fade" id="workModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="workModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="workModalLabel">End Work Session</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        You are currently marked as working. Would you like to end your work session?
+      </div>
+      <div class="modal-footer">
+        <form method="POST" action="{% url 'emp:temp_end_work' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">End Work</button>
+        </form>
+        <!-- 💡 INFO: If closed, the timer will continue unable to stop after a new worksession -->
+        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- trigger if is_working -->
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    var workModal = new bootstrap.Modal(document.getElementById('workModal'));
+    workModal.show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}
